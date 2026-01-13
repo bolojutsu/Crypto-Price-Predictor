@@ -1,3 +1,4 @@
+from pydoc import resolve
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -7,6 +8,36 @@ app = Flask(__name__)
 CORS(app)
 API_KEY = os.environ.get("COINGECKO_API_KEY")
 COINGECKO_BASE_URL = "https://api.coingecko.com/api/v3"
+
+ticker_cache = {
+    "btc": "bitcoin",
+    "eth": "ethereum",
+    "sol": "solana",
+    "xrp": "ripple",
+    "ada": "cardano",
+}
+
+
+def resolve_coin_id(user_input):
+    query = user_input.lower().strip()
+
+    if query in ticker_cache:
+        return ticker_cache[query]
+
+    try:
+        search_url = f"{COINGECKO_BASE_URL}/search"
+        params = {"query": query}
+        headers = {"x-cg-demo-api-key": API_KEY}
+        response = requests.get(search_url, headers=headers, params=params)
+        data = response.json()
+
+        if data.get("coins") and len(data["coins"]) > 0:
+            resolved_id = data["coins"][0]["id"]
+            ticker_cache[query] = resolved_id
+            return resolved_id
+        return query
+    except:
+        return query.lower()
 
 
 @app.route("/api/coingecko/<path:endpoint>")
@@ -25,7 +56,8 @@ def coingecko_proxy(endpoint):
 
 @app.route("/api/predict-price")
 def predict_price():
-    coin_id = requests.args.get("coin_id", "bitcoin").lower()
+    raw_input = request.args.get("coin_id", "bitcoin").lower()
+    coin_id = resolve_coin_id(raw_input)
     investment_amount = requests.args.get("investment_amount", type=float)
 
     if investment_amount is None or investment_amount <= 0:
@@ -114,9 +146,10 @@ def predict_price():
 
 @app.route("/api/target-prediction")
 def target_prediction():
-
     try:
-        coin_id = request.args.get("coin_id").lower()
+        raw_input = request.args.get("coin_id").lower()
+        coin_id = resolve_coin_id(raw_input)
+
         target_mcap = float(request.args.get("target_mcap"))
         investment = float(request.args.get("investment", 0))
 
@@ -148,8 +181,9 @@ def target_prediction():
 
 @app.route("/api/history/<coin_id>")
 def get_history(coin_id):
+    resolved_id = resolve_coin_id(coin_id)
     try:
-        url = f"{COINGECKO_BASE_URL}/coins/{coin_id}/market_chart"
+        url = f"{COINGECKO_BASE_URL}/coins/{resolved_id}/market_chart"
         params = {"vs_currency": "usd", "days": "7"}
         headers = {"x-cg-demo-api-key": API_KEY}
         response = requests.get(url, headers=headers, params=params)
@@ -158,3 +192,7 @@ def get_history(coin_id):
         return jsonify(data.get("prices", []))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

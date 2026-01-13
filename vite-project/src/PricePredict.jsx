@@ -28,9 +28,9 @@ function PricePredict() {
 
         try {
             let response;
-            let mode = "standard"
+            let mode;
 
-            const histroyResponse = await fetch(`/api/history/${coinId.toLowerCase().trim()}`);
+            const histroyResponse = await fetch(`http://127.0.0.1:5000/api/history/${coinId.toLowerCase().trim()}`);
             const histroyJson = await histroyResponse.json();
 
             setHistoryData(histroyJson);
@@ -42,13 +42,14 @@ function PricePredict() {
                     target_mcap: targetMarketcap,
                     investment: investmentAmount || 0
                 })
-                response = await fetch(`/api/target-prediction?${queryParams}`)
+                response = await fetch(`http://127.0.0.1:5000/api/target-prediction?${queryParams}`)
             } else {
+                mode = "standard"
                 const queryParams = new URLSearchParams({
                     coin_id: coinId.toLowerCase().trim(),
                     investment_amount: investmentAmount || 0
                 });
-                response = await fetch(`/api/predict-price?${queryParams}`)
+                response = await fetch(`http://127.0.0.1:5000/api/predict-price?${queryParams}`)
             }
 
             if (!response.ok) {
@@ -78,7 +79,7 @@ function PricePredict() {
             <div className="input-section">
                 <input
                     type="text"
-                    placeholder="Coin ID (e.g. bitcoin)"
+                    placeholder="Enter Ticker"
                     value={coinId}
                     onChange={(e) => setCoinId(e.target.value)}
                     disabled={loading}
