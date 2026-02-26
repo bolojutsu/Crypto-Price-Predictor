@@ -1,7 +1,8 @@
 :root {
   --bg-color: #0b0e11;
   --card-bg: #1e2329;
-  --accent-color: #f0b90b; /* Binance Gold */
+  --accent-color: #f0b90b;
+  /* Binance Gold */
   --text-main: #eaecef;
   --text-muted: #848e9c;
   --success: #0ecb81;
@@ -13,6 +14,7 @@ body {
   font-family: "Inter", -apple-system, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
 }
 
 .background {
@@ -20,18 +22,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px;
+  padding: 20px;
+  /* Reduced padding for mobile */
   box-sizing: border-box;
 }
 
 header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
+  width: 100%;
   max-width: 600px;
 }
 
 header h1 {
-  font-size: 2.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  /* Fluid typography */
   margin-bottom: 10px;
   background: linear-gradient(90deg, #fff, var(--accent-color));
   -webkit-background-clip: text;
@@ -41,18 +46,32 @@ header h1 {
 header p {
   color: var(--text-muted);
   line-height: 1.6;
+  font-size: 0.95rem;
 }
 
+/* INPUT SECTION RESPONSIVENESS */
 .input-section {
   background-color: var(--card-bg);
-  padding: 30px;
+  padding: 20px;
   border-radius: 16px;
   display: flex;
-  gap: 15px;
+  flex-direction: column;
+  /* Stack by default on mobile */
+  gap: 12px;
   width: 100%;
   max-width: 800px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   border: 1px solid #333;
+  box-sizing: border-box;
+}
+
+/* Switch to row on tablets/desktops */
+@media (min-width: 768px) {
+  .input-section {
+    flex-direction: row;
+    padding: 30px;
+    gap: 15px;
+  }
 }
 
 .input-section input {
@@ -64,6 +83,9 @@ header p {
   color: white;
   font-size: 1rem;
   transition: border-color 0.2s;
+  width: 100%;
+  /* Ensure full width in flex-column */
+  box-sizing: border-box;
 }
 
 .input-section input:focus {
@@ -79,44 +101,62 @@ header p {
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  /* Prevent text wrapping on button */
   transition: transform 0.1s, opacity 0.2s;
 }
 
-.input-section button:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
+/* RESULTS GRID */
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr;
+  /* Single column on mobile */
+  gap: 15px;
   width: 100%;
   max-width: 1000px;
-  margin-top: 30px;
+  margin-top: 20px;
+}
+
+@media (min-width: 640px) {
+  .results-grid {
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns for tablets */
+    gap: 20px;
+  }
 }
 
 .card {
   background-color: var(--card-bg);
-  padding: 24px;
+  padding: 20px;
   border-radius: 16px;
   border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .card h3 {
   margin-top: 0;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   border-bottom: 1px solid #333;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
+  margin-bottom: 15px;
 }
 
 .metric-value {
-  font-size: 1.5rem;
+  font-size: clamp(1.2rem, 4vw, 1.6rem);
   font-weight: 700;
-  margin: 10px 0;
+  margin: 5px 0;
+  word-break: break-all;
+  /* Prevents long numbers from breaking layout */
+}
+
+/* Specialized full-width cards */
+.full-width-card {
+  grid-column: 1 / -1;
 }
 
 .roi-badge {
@@ -125,6 +165,15 @@ header p {
   border-radius: 8px;
   font-size: 1.2rem;
   font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* CHART CONTAINER */
+.chart-card {
+  grid-column: 1 / -1;
+  min-height: 300px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .error-section {
@@ -134,8 +183,7 @@ header p {
   padding: 15px;
   border-radius: 8px;
   margin-top: 20px;
-}
-
-.home-background {
-  color: white;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
 }

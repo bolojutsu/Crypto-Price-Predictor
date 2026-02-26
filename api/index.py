@@ -1,4 +1,3 @@
-from pydoc import resolve
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -18,26 +17,19 @@ ticker_cache = {
 }
 
 
-def resolve_coin_id(user_input):
-    query = user_input.lower().strip()
-
-    if query in ticker_cache:
-        return ticker_cache[query]
-
+def resolve_coin_id(ticker_or_name):
     try:
-        search_url = f"{COINGECKO_BASE_URL}/search"
-        params = {"query": query}
+        url = f"{COINGECKO_BASE_URL}/search"
+        params = {"query": ticker_or_name}
         headers = {"x-cg-demo-api-key": API_KEY}
-        response = requests.get(search_url, headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params)
         data = response.json()
 
         if data.get("coins") and len(data["coins"]) > 0:
-            resolved_id = data["coins"][0]["id"]
-            ticker_cache[query] = resolved_id
-            return resolved_id
-        return query
+            return data["coins"][0]["id"]
+        return ticker_or_name.lower()
     except:
-        return query.lower()
+        return ticker_or_name.lower()
 
 
 @app.route("/api/coingecko/<path:endpoint>")
@@ -56,7 +48,7 @@ def coingecko_proxy(endpoint):
 
 @app.route("/api/predict-price")
 def predict_price():
-    raw_input = request.args.get("coin_id", "bitcoin").lower()
+    raw_input = requests.args.get("coin_id", "bitcoin").lower()
     coin_id = resolve_coin_id(raw_input)
     investment_amount = requests.args.get("investment_amount", type=float)
 

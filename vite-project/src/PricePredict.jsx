@@ -79,7 +79,7 @@ function PricePredict() {
             <div className="input-section">
                 <input
                     type="text"
-                    placeholder="Enter Ticker"
+                    placeholder="Coin ID (e.g. bitcoin)"
                     value={coinId}
                     onChange={(e) => setCoinId(e.target.value)}
                     disabled={loading}
@@ -166,6 +166,4 @@ function PricePredict() {
         </div>
     );
 }
-
-
 export default PricePredict;
